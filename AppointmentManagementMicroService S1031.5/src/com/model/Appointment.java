@@ -44,7 +44,7 @@ public class Appointment {
 		
 	
 	public String makeAppointment(String m_appointment_patient, String m_appointment_category, String m_appointment_hospital, String m_appointment_date, String m_appointment_time, String m_appointment_description) {
-		
+		System.out.println("inside insert model");
 		String output = "";
 		
 		try {
@@ -56,27 +56,34 @@ public class Appointment {
 			}
 
 			String query = "insert into m_appointment (`m_appointment_patient`, `m_appointment_category`, `m_appointment_hospital`, `m_appointment_date`, `m_appointment_time`, `m_appointment_description`) values (?, ?, ?, ?, ?, ?)";
-			
+			System.out.println("inside insert model bps");
 			PreparedStatement preparedStmt = con.prepareStatement(query);
 
 			// binding values
 			//preparedStmt.setInt(1, 0);
+			System.out.println("inside insert model bps1");
 			preparedStmt.setString(1, m_appointment_patient);
+			System.out.println("inside insert model bps2");
 			preparedStmt.setString(2, m_appointment_category);
+			System.out.println("inside insert model bps3");
 			preparedStmt.setString(3, m_appointment_hospital);
+			System.out.println("inside insert model bps4");
 			preparedStmt.setDate(4, Date.valueOf(m_appointment_date));
+			System.out.println("inside insert model bps5"+m_appointment_time);
 			preparedStmt.setTime(5, Time.valueOf(m_appointment_time));
+			System.out.println("inside insert model bps6");
 			preparedStmt.setString(6, m_appointment_description);
 
 			// execute the statement
 			preparedStmt.execute();
 			con.close();
 			
-			
-
-			output =  "Appointment Details Inserted successfully";
+			System.out.println("inside insert model after ps");
+		
+			String newAppo = viewAllAppointment();
+			output = "{\"status\":\"success\", \"data\": \"" +  newAppo + "\"}";
 		} catch (Exception e) {
-			output =  "Error while inserting the Appointment Details .";
+			output = "{\"status\":\"error\", \"data\":\"Error while inserting the Appointment.\"}";
 			System.err.println(e.getMessage());
 		}
 
@@ -99,7 +106,7 @@ public class Appointment {
 			}
 
 			// Prepare the html table to be displayed
-			output = "<table border=\"1\"><tr><th>Patient Name</th><th>Specialization Category</th><th>Hospital Name</th><th>Date</th><th>Time</th><th>Appointment Description</th><th>Update</th><th>Remove</th></tr>";
+			output = "<table border=\"1\"><tr><th>Appointment Number</th><th>Patient Name</th><th>Specialization Category</th><th>Hospital Name</th><th>Date</th><th>Time</th><th>Appointment Description</th><th>Update</th><th>Remove</th></tr>";
 
 			String query = "select * from m_appointment";
 			Statement stmt = con.createStatement();
@@ -115,7 +122,9 @@ public class Appointment {
 				String m_appointment_description = rs.getString("m_appointment_description");
 
 				// Add into the html table
-				output += "<tr><td>" + m_appointment_patient + "</td>";
+				output += "<tr><td><input type='hidden'  id='hidAppoIDUpdate' name='hidAppoIDUpdate' value='"
+						+ m_appointment_no + "'></td>";
+				output += "<td>" + m_appointment_patient + "</td>";
 				output += "<td>" + m_appointment_category + "</td>";
 				output += "<td>" + m_appointment_hospital + "</td>";
 				output += "<td>" + m_appointment_date + "</td>";
@@ -123,10 +132,8 @@ public class Appointment {
 				output += "<td>" + m_appointment_description + "</td>";
 
 				// buttons
-				output += "<td><input name=\"btnUpdate\" type=\"button\" value=\"Update\" class=\"btn btn-secondary\"></td>"
-						+ "<td><form method=\"post\" action=\"Appointment.jsp\">"
-						+ "<input name=\"btnRemove\" type=\"submit\" value=\"Remove\" class=\"btn btn-danger\">"
-						+ "<input name=\"aNo\" type=\"hidden\" value=\"" + m_appointment_no + "\">" + "</form></td></tr>";
+				output += "<td><input name='btnUpdate' type='button' value='Update' class='btnUpdate btn btn-secondary'></td><td><input name='btnRemove' type='button' value='Remove' class='btnRemove btn btn-danger' data-t_payment_no='"+ m_appointment_no + "'>" 
+						 + "</td></tr>";
 
 			}
 
@@ -240,8 +247,12 @@ public class Appointment {
 
 			output = "Updated successfully";
 
+		
+		
+		String newAppo = viewAllAppointment();
+		output = "{\"status\":\"success\", \"data\": \"" +  newAppo + "\"}";
 		} catch (Exception e) {
-			output = "Error while updating the appointment.";
+			output = "{\"status\":\"error\", \"data\":\"Error while inserting the Payment.\"}";
 			System.err.println(e.getMessage());
 		}
 
@@ -279,10 +290,11 @@ public class Appointment {
 
 			output = "Deleted successfully";
 
+			String newAppo = viewAllAppointment();
+			output = "{\"status\":\"success\", \"data\": \"" +  newAppo + "\"}";
 		} catch (Exception e) {
-			output = "Error while deleting the appointment.";
+			output = "{\"status\":\"error\", \"data\":\"Error while Deleting the Appointment.\"}";
 			System.err.println(e.getMessage());
-
 		}
 
 		return output;
